@@ -22,6 +22,8 @@ class SettingProp (context: Context, var development_enable:Boolean,var adbenabl
         }
         if (vpn_connect==true){
             add(Pair(array[3],Result.SUSPICIOUS))
+        }else{
+            add(Pair("vpn not connected",Result.NOT_FOUND))
         }
         return result
     }

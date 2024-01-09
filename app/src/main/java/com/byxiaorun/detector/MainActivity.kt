@@ -1,6 +1,8 @@
 package com.byxiaorun.detector
 
 import android.accessibilityservice.AccessibilityServiceInfo
+import android.accounts.Account
+import android.accounts.AccountManager
 import android.content.Context.CONNECTIVITY_SERVICE
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -29,16 +31,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.byxiaorun.detector.BuildConfig
+import com.byxiaorun.detector.MyApplication.Companion.accountList
 import com.byxiaorun.detector.MyApplication.Companion.appContext
-import com.byxiaorun.detector.MyApplication.Companion.maps_string
 import com.byxiaorun.detector.MyApplication.Companion.vpn_connect
 import icu.nullptr.applistdetector.MainPage
 import icu.nullptr.applistdetector.theme.MyTheme
 import java.io.*
 import java.net.NetworkInterface
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.text.StringBuilder
 
 
 /**
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         checkDisabled()
         checkSetting()
-        CheckProcSelfMaps()
+        Accounts()
         setContent {
             MyTheme {
                 var showDialog by remember { mutableStateOf(false) }
@@ -181,6 +181,9 @@ fun gettext(string: String): Array<String> {
         "settingprops" -> {
             return appContext.resources.getStringArray(R.array.settingprops)
         }
+        "account" -> {
+            return arrayOf(appContext.getString(R.string.account))
+        }
         else -> {
             return arrayOf("none")
         }
@@ -229,35 +232,12 @@ private fun getFromSettingsSecure():List<String> {
     return nameList
 }
 
-fun  getValueFromProp(propName:String): String {
-        val line:String
-        var input: BufferedReader? =null
-        try {
-            val p:Process=Runtime.getRuntime().exec("getprop "+propName)
-            input =BufferedReader( InputStreamReader(p.getInputStream()), 1024)
-            line = input.readLine()
-            input.close()
-        } catch (ex:IOException) {
-            return null.toString()
-        } finally {
-            if (input != null) {
-                try {
-                    input.close()
-                } catch (e:IOException) {
-                    e.printStackTrace()
-                }
-            }
-        }
-        return line
-    }
+
 
 fun checkSetting() {
     if((Settings.Secure.getInt(appContext.contentResolver,Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,0)==1)){ MyApplication.development_enable=true }
     if((Settings.Secure.getInt(appContext.contentResolver,Settings.Global.ADB_ENABLED,0)==1
-                || getValueFromProp("sys.usb.ffs.ready").contains("1")
-                || getValueFromProp("sys.usb.state").contains("adb")
-                || getValueFromProp("sys.usb.config").contains("adb")
-                || getValueFromProp("persist.sys.usb.reboot.funnc").contains("adb")
+
                 )){ MyApplication.adbenable=true }
 
     try {
@@ -284,34 +264,21 @@ fun checkSetting() {
         e.printStackTrace()
     }
 }
-fun CheckProcSelfMaps() {
-    try {
-        val ret=StringBuilder()
-        val ins=FileInputStream("/proc/self/smaps")
-        var ins2= FileInputStream("/proc/self/maps")
-        val list= ArrayList<InputStream>()
-        list.add(ins)
-        list.add(ins2)
-        for (inputlist in list){
-            val reader=InputStreamReader(inputlist,Charsets.UTF_8)
-            val bufReader= BufferedReader(reader)
-            while (bufReader.readLine()!=null){
-                val line:String= bufReader.readLine()
-                val line2=line.split("/","_","-").toString()
-                if (line2.contains(".magisk",ignoreCase = true)
-                    ||(line2.contains("riru",ignoreCase = true)
-                            ||(line2.contains("zygisk",ignoreCase = true)))
-                ){
-                    ret.append(line2).append('\n')
-                }
+
+
+fun Accounts() {
+    try{
+        val accounts = AccountManager.get(appContext).getAccounts()
+        var mutableList: MutableList<String> = mutableListOf()
+        if (accounts.size>0) {
+            for (account in accounts) {
+                val accounttype = account.type
+                val accountname = account.name
+                mutableList.add(accounttype + ", " + accountname).toString()
             }
-            if (ret.toString().length!=0) maps_string=true
-            bufReader.close()
-            reader.close()
+            accountList = mutableList.toList()
         }
-        ins.close()
-        ins2.close()
-    } catch (e: Exception) {
-        e.printStackTrace()
+    }catch (e:IOException) {
+
     }
 }

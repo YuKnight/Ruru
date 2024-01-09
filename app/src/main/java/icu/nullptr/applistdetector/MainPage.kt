@@ -11,10 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.byxiaorun.detector.MyApplication.Companion.accList
 import com.byxiaorun.detector.MyApplication.Companion.accenable
+import com.byxiaorun.detector.MyApplication.Companion.accountList
 import com.byxiaorun.detector.MyApplication.Companion.adbenable
 import com.byxiaorun.detector.MyApplication.Companion.appContext
 import com.byxiaorun.detector.MyApplication.Companion.development_enable
-import com.byxiaorun.detector.MyApplication.Companion.maps_string
 import com.byxiaorun.detector.MyApplication.Companion.vpn_connect
 import com.byxiaorun.detector.gettext
 import icu.nullptr.applistdetector.component.CheckCard
@@ -36,7 +36,7 @@ val basicAppList = listOf(
 )
 
 val snapShotList = mutableStateListOf<Triple<IDetector, IDetector.Result?, Detail?>>(
-    Triple(AbnormalEnvironment(appContext, gettext("abnormal")[0], maps_string), null, null),
+    Triple(AbnormalEnvironment(appContext, gettext("abnormal")[0]), null, null),
     Triple(PMCommand(appContext,gettext("pmc")[0]), null, null),
     Triple(PMConventionalAPIs(appContext,gettext("pmca")[0]), null, null),
     Triple(PMSundryAPIs(appContext,gettext("pmsa")[0]), null, null),
@@ -49,6 +49,7 @@ val snapShotList = mutableStateListOf<Triple<IDetector, IDetector.Result?, Detai
     Triple(MagiskApp(appContext,gettext("magisk")[0]), null, null),
     Triple(Accessibility(appContext,accList, accenable,gettext("accessibility")[0]), null, null),
     Triple(SettingProp(appContext, development_enable, adbenable,vpn_connect,gettext("settingprops")), null, null),
+    Triple(Account(appContext, accountList, gettext("account")[0]), null, null),
 )
 
 suspend fun runDetector(id: Int, packages: Collection<String>?) {
@@ -64,7 +65,7 @@ fun MainPage(modifier: Modifier) {
     LaunchedEffect(appContext) {
         runDetector(0, null)
         for (i in 1..6) runDetector(i, basicAppList)
-        for (i in 7..11) runDetector(i, null)
+        for (i in 7..12) runDetector(i, null)
     }
 
     Column(

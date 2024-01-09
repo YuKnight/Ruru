@@ -2,7 +2,7 @@ package icu.nullptr.applistdetector
 
 import android.content.Context
 class AbnormalEnvironment(
-    context: Context, override val name:String, val maps_string: Boolean
+    context: Context, override val name:String
 ) : IDetector(context) {
 
 
@@ -38,7 +38,6 @@ class AbnormalEnvironment(
         add(Pair("Xposed Edge", detectFile("/data/system/xedge")))
         add(Pair("Riru Clipboard", detectFile("/data/misc/clipboard")))
         add(Pair("隐秘空间", detectFile("/data/system/cn.geektang.privacyspace")))
-        add(Pair("Magisk/Riru/Zygisk Maps Scan",if(maps_string)Result.FOUND else Result.NOT_FOUND))
         var sufilenum=0
         var busyboxnum=0
         var magisknum=0

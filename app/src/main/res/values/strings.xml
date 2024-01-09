@@ -18,6 +18,7 @@
     <string name="xposed">Xposed Modules</string>
     <string name="lspatch">LSPatch App</string>
     <string name="magisk">Magisk App</string>
+    <string name="account">Account</string>
     <string name="accessibility">Accessibility Services</string>
      <string-array name="settingprops">
         <item>Setting Props</item>
